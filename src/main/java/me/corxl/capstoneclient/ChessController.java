@@ -8,6 +8,7 @@ import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.pieces.TeamColor;
 import me.corxl.capstoneclient.chess.players.Player;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -20,7 +21,11 @@ public class ChessController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        currentBoard = new Board(new Player("1"), new Player("2"), this);
+        try {
+            currentBoard = new Board(new Player("1"), new Player("2"), this);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         mainPane.getChildren().add(0, currentBoard);
     }

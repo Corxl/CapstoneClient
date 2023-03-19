@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Cap.iml" filepath="$PROJECT_DIR$/Cap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CapstoneServer.iml" filepath="$PROJECT_DIR$/CapstoneServer.iml" />
     </modules>
   </component>
 </project>

@@ -1,6 +1,8 @@
 package me.corxl.capstoneclient.chess.spaces;
 
-public class BoardLocation {
+import java.io.Serializable;
+
+public class BoardLocation implements Serializable {
 
     private final int x, y;
 

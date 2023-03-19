@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import me.corxl.capstoneclient.ChessMain;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.pieces.Piece;
 import me.corxl.capstoneclient.chess.pieces.PieceEnum;
@@ -14,9 +15,11 @@ import me.corxl.capstoneclient.chess.pieces.TeamColor;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Random;
 
-public class Space extends StackPane implements SpaceInterface {
+public class Space extends StackPane implements SpaceInterface, Serializable {
 
     SpaceColor color;
     private final BoardLocation location;
@@ -30,6 +33,16 @@ public class Space extends StackPane implements SpaceInterface {
         this.location = new BoardLocation(space.getLocation());
         if (space.getPiece() != null)
             this.currentPiece = new Piece(space.getPiece());
+    }
+
+    public Space(BoardLocation location) {
+        this.location = location;
+        this.currentPiece = null;
+    }
+
+    public Space(BoardLocation location, Piece p) {
+        this.location = location;
+        this.currentPiece = p;
     }
 
     public Space(SpaceColor color, BoardLocation location) {
@@ -47,7 +60,13 @@ public class Space extends StackPane implements SpaceInterface {
         v.setFitHeight(80);
         this.getChildren().add(v);
         this.setOnMouseClicked((e) -> {
-            onClick();
+            try {
+                onClick();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
         });
         currentPiece = null;
 
@@ -71,7 +90,11 @@ public class Space extends StackPane implements SpaceInterface {
         this.getChildren().add(v);
         this.getChildren().add(this.currentPiece);
         this.setOnMouseClicked((e) -> {
-            onClick();
+            try {
+                onClick();
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
         });
     }
 
@@ -85,7 +108,7 @@ public class Space extends StackPane implements SpaceInterface {
         }
     }
 
-    private void onClick() {
+    private void onClick() throws IOException, ClassNotFoundException {
         Board.isPieceSelected = this.currentPiece != null;
         System.out.println(Board.isPieceSelected + ";;;");
         if (Board.selectedSpaces[this.getLocation().getX()][this.getLocation().getY()]) {
@@ -98,7 +121,19 @@ public class Space extends StackPane implements SpaceInterface {
                         play(new Random().nextInt(5) + 1 + ".wav");
                 } else
                     play(new Random().nextInt(5) + 1 + ".wav");
-                Board.setPiece(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
+                //Board.setPiece(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
+
+                Space[][] newSpaces = ChessMain.getClientConnection().requestMove(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
+                for (int i = 0; i < newSpaces.length; i++) {
+                    for (int j = 0; j < newSpaces[i].length; j++) {
+                        System.out.print(newSpaces[i][j].getPiece() + ", ");
+                        Piece p = newSpaces[i][j].getPiece();
+                        System.out.println(p == null ? "" : p.isPawnMoved() + " <---");
+                        Board.getSpaces()[i][j].setPiece(p == null ? null : new Piece(p.getPieceType(), p.getColor(), p.getLocation(), p.isPawnMoved()));
+                    }
+                    System.out.println();
+                }
+
                 Board.isPieceSelected = false;
                 Board.clearSelections();
                 TeamColor oppositeColor = Board.getTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
