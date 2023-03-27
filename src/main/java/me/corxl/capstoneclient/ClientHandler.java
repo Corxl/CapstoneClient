@@ -1,6 +1,9 @@
 package me.corxl.capstoneclient;
 
+import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.pieces.Piece;
+import me.corxl.capstoneclient.chess.pieces.TeamColor;
+import me.corxl.capstoneclient.chess.players.Player;
 import me.corxl.capstoneclient.chess.spaces.BoardLocation;
 import me.corxl.capstoneclient.chess.spaces.Space;
 
@@ -19,6 +22,8 @@ public class ClientHandler {
     public ClientHandler() throws IOException, ClassNotFoundException {
         InetAddress host = InetAddress.getLocalHost();
         socket = new Socket(host.getHostName(), port);
+        input = new ObjectInputStream(socket.getInputStream());
+        Board.setClientPlayer(new Player("", (TeamColor) input.readObject()));
     }
 
     public void closeConnection() throws IOException {
@@ -30,7 +35,7 @@ public class ClientHandler {
 
     public boolean[][] getPossibleMoves(Piece p, boolean targetFriendly, Space[][] spaces) throws IOException, ClassNotFoundException {
         ioout = new ObjectOutputStream(socket.getOutputStream());
-        Object[] data = new Object[]{"getPossibleMoves", p, targetFriendly, spaces};
+        Object[] data = new Object[]{"getPossibleMoves", p, targetFriendly, spaces, Board.getClientPlayer()};
         ioout.writeObject(data);
         input = new ObjectInputStream(socket.getInputStream());
         boolean[][] moveSpaces = (boolean[][]) input.readObject();

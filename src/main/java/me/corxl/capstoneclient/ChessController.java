@@ -6,7 +6,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.layout.VBox;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.pieces.TeamColor;
-import me.corxl.capstoneclient.chess.players.Player;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,7 +21,7 @@ public class ChessController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            currentBoard = new Board(new Player("1"), new Player("2"), this);
+            currentBoard = new Board(null, null, this);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

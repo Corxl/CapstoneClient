@@ -82,6 +82,10 @@ public class Piece extends VBox implements Serializable {
         return this.pawnMoved;
     }
 
+    public void setPawnMoved(boolean b) {
+        this.pawnMoved = b;
+    }
+
     public TeamColor getColor() {
         return this.color;
     }
@@ -91,9 +95,6 @@ public class Piece extends VBox implements Serializable {
     }
 
     public void setLocation(BoardLocation location) {
-        if (this.getPieceType() == PieceEnum.PAWN)
-            if (!this.pawnMoved)
-                this.pawnMoved = true;
         this.location = location;
     }
 

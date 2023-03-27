@@ -25,6 +25,7 @@ public class Board extends GridPane implements BoardInterface {
     private final static HashMap<TeamColor, TeamColor> opposingColors = new HashMap<>();
     private static TeamColor turn;
     public static Piece selectedPiece;
+    private static Player clientPlayer;
     private final PieceEnum[][] defaultPieces = new PieceEnum[][]{
             {PieceEnum.ROOK, PieceEnum.KNIGHT, PieceEnum.BISHOP, PieceEnum.QUEEN, PieceEnum.KING, PieceEnum.BISHOP, PieceEnum.KNIGHT, PieceEnum.ROOK},
             {PieceEnum.PAWN, PieceEnum.PAWN, PieceEnum.PAWN, PieceEnum.PAWN, PieceEnum.PAWN, PieceEnum.PAWN, PieceEnum.PAWN, PieceEnum.PAWN},
@@ -74,6 +75,10 @@ public class Board extends GridPane implements BoardInterface {
         isChecked.put(TeamColor.BLACK, false);
         opposingColors.put(TeamColor.WHITE, TeamColor.BLACK);
         opposingColors.put(TeamColor.BLACK, TeamColor.WHITE);
+    }
+
+    public static void setClientPlayer(Player p) {
+        clientPlayer = p;
     }
 
     public static HashMap<TeamColor, TeamColor> getOpposingColor() {
@@ -225,6 +230,10 @@ public class Board extends GridPane implements BoardInterface {
             }
         }
         return false;
+    }
+
+    public static Player getClientPlayer() {
+        return clientPlayer;
     }
 
     @Override
