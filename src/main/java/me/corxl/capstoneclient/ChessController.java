@@ -16,7 +16,7 @@ public class ChessController implements Initializable {
     @FXML
     private VBox mainPane;
 
-    private Board currentBoard;
+    private static Board currentBoard;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -28,6 +28,11 @@ public class ChessController implements Initializable {
 
         mainPane.getChildren().add(0, currentBoard);
     }
+
+    public static Board getMainBoard() {
+        return currentBoard;
+    }
+
 
     @FXML
     void resetGame(ActionEvent event) {
