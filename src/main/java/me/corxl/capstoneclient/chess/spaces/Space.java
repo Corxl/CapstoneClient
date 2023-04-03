@@ -6,10 +6,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import me.corxl.capstoneclient.ChessMain;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.pieces.Piece;
-import me.corxl.capstoneclient.chess.pieces.PieceEnum;
+import me.corxl.capstoneclient.chess.pieces.PieceType;
 import me.corxl.capstoneclient.chess.pieces.TeamColor;
 
 import javax.sound.sampled.AudioSystem;
@@ -28,6 +27,7 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
     private final String soundDir = System.getProperty("user.dir") + "\\src\\main\\resources\\me\\corxl\\capstoneclient\\sounds\\";
     private ImageView select;
     private boolean isSelected = false;
+    private transient Board board;
 
     public Space(Space space) {
         this.location = new BoardLocation(space.getLocation());
@@ -45,8 +45,9 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
         this.currentPiece = p;
     }
 
-    public Space(SpaceColor color, BoardLocation location) {
+    public Space(SpaceColor color, BoardLocation location, Board board) {
         this.location = location;
+        this.board = board;
         this.setStyle("-fx-background-color: #1F1F1F");
         this.setPadding(new Insets(3, 3, 3, 3));
         this.setBorder(new Border(new BorderStroke(Color.BLACK,
@@ -72,9 +73,9 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
 
     }
 
-    public Space(SpaceColor color, BoardLocation location, Piece piece) {
+    public Space(SpaceColor color, BoardLocation location, Piece piece, Board board) {
         this.currentPiece = piece;
-
+        this.board = board;
         this.location = location;
         this.setStyle("-fx-background-color: #1F1F1F");
         this.setPadding(new Insets(3, 3, 3, 3));
@@ -109,13 +110,13 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
     }
 
     private void onClick() throws IOException, ClassNotFoundException {
-        Board.isPieceSelected = this.currentPiece != null;
-        System.out.println(Board.isPieceSelected + ";;;");
-        if (Board.selectedSpaces[this.getLocation().getX()][this.getLocation().getY()]) {
-            if (Board.selectedPiece != null) {
-                Piece deadPiece = Board.getSpaces()[this.getLocation().getX()][this.getLocation().getY()].getPiece();
+        board.isPieceSelected = this.currentPiece != null;
+        System.out.println(board.isPieceSelected + ";;;");
+        if (board.selectedSpaces[this.getLocation().getX()][this.getLocation().getY()]) {
+            if (board.selectedPiece != null) {
+                Piece deadPiece = board.getSpaces()[this.getLocation().getX()][this.getLocation().getY()].getPiece();
                 if (deadPiece != null) {
-                    if (deadPiece.getPieceType() == PieceEnum.QUEEN)
+                    if (deadPiece.getPieceType() == PieceType.QUEEN)
                         play("queen_death.wav");
                     else
                         play(new Random().nextInt(5) + 1 + ".wav");
@@ -123,39 +124,39 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
                     play(new Random().nextInt(5) + 1 + ".wav");
                 //Board.setPiece(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
 
-                Space[][] newSpaces = ChessMain.getClientConnection().requestMove(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
+                Space[][] newSpaces = board.getClient().requestMove(board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), board.selectedPiece.getLocation());
                 for (int i = 0; i < newSpaces.length; i++) {
                     for (int j = 0; j < newSpaces[i].length; j++) {
                         System.out.print(newSpaces[i][j].getPiece() + ", ");
                         Piece p = newSpaces[i][j].getPiece();
                         System.out.println(p == null ? "" : p.isPawnMoved() + " <---");
-                        Board.getSpaces()[i][j].setPiece(p == null ? null : new Piece(p.getPieceType(), p.getColor(), p.getLocation(), p.isPawnMoved()));
+                        board.getSpaces()[i][j].setPiece(p == null ? null : new Piece(p.getPieceType(), p.getColor(), p.getLocation(), this.board));
                     }
                     System.out.println();
                 }
 
-                Board.isPieceSelected = false;
-                Board.clearSelections();
-                TeamColor oppositeColor = Board.getTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
-                boolean isCheck = Board.isInCheck(oppositeColor, Board.getSpaces(), Board.getPossibleMovesByColor(Board.getTurn()));
-                Board.getIsChecked().put(oppositeColor, isCheck);
+                board.isPieceSelected = false;
+                board.clearSelections();
+                TeamColor oppositeColor = board.getTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+                boolean isCheck = Board.isInCheck(oppositeColor, board.getSpaces(), board.getPossibleMovesByColor(board.getTurn()));
+                board.getIsChecked().put(oppositeColor, isCheck);
                 //System.out.println(isCheck ? oppositeColor + " is in check!" : oppositeColor + " is not in check...");
                 if (isCheck) {
-                    System.out.println(Board.checkForGameOver() ? "The game is Over :(." : "The game is NOT over :).");
+                    System.out.println(board.checkForGameOver() ? "The game is Over :(." : "The game is NOT over :).");
                 }
 
 
-                Board.setTurn(oppositeColor);
+                board.setTurn(oppositeColor);
 
 
             }
         }
         if (this.currentPiece == null) {
-            boolean[][] selected = Board.selectedSpaces;
+            boolean[][] selected = board.selectedSpaces;
             for (int j = 0; j < selected.length; j++) {
                 for (int k = 0; k < selected[j].length; k++) {
                     if (selected[j][k]) {
-                        Board.getSpaces()[j][k].setSelected(false);
+                        board.getSpaces()[j][k].setSelected(false);
                     }
                 }
             }

@@ -18,4 +18,6 @@ module me.corxl.capstone {
     opens me.corxl.capstoneclient.chess.players to javafx.fxml;
     exports me.corxl.capstoneclient.chess.spaces;
     opens me.corxl.capstoneclient.chess.spaces to javafx.fxml;
+    exports me.corxl.capstoneclient.lobby;
+    opens me.corxl.capstoneclient.lobby to javafx.fxml;
 }

@@ -4,7 +4,6 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import me.corxl.capstoneclient.ChessMain;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.spaces.BoardLocation;
 import me.corxl.capstoneclient.chess.spaces.Space;
@@ -15,8 +14,9 @@ import java.io.Serializable;
 public class Piece extends VBox implements Serializable {
     private final TeamColor color;
     private BoardLocation location;
-    private final PieceEnum pieceType;
+    private final PieceType pieceType;
     private boolean pawnMoved = false;
+    private transient Board board;
 
     public Piece(Piece piece) {
         this.pieceType = piece.getPieceType();
@@ -25,11 +25,12 @@ public class Piece extends VBox implements Serializable {
         this.pawnMoved = piece.pawnMoved;
     }
 
-    public Piece(PieceEnum pieceType, TeamColor color, BoardLocation location, boolean isPawnMoved) {
+
+    public Piece(PieceType pieceType, TeamColor color, BoardLocation location, Board board) {
         this.color = color;
         this.location = location;
         this.pieceType = pieceType;
-        this.pawnMoved = isPawnMoved;
+        this.board = board;
         this.setAlignment(Pos.CENTER);
 
         String p = this.isWhite()
@@ -44,15 +45,15 @@ public class Piece extends VBox implements Serializable {
         this.getChildren().add(v);
         this.setOnMouseClicked((e) -> {
             try {
-                if (this.color != Board.getTurn()) {
+                if (this.color != board.getTurn()) {
                     return;
                 }
-                Board.clearSelections();
+                board.clearSelections();
                 System.out.println("H :: " + this.pawnMoved);
-                boolean[][] possileMoves = ChessMain.getClientConnection().getPossibleMoves(this, false, Board.getSpaces());
+                boolean[][] possileMoves = board.getClient().getPossibleMoves(this, false);
                 System.out.println("H2");
-                Board.selectedSpaces = possileMoves;
-                Space[][] spaces = Board.getSpaces();
+                board.selectedSpaces = possileMoves;
+                Space[][] spaces = board.getSpaces();
                 for (int j = 0; j < possileMoves.length; j++) {
                     for (int k = 0; k < possileMoves[j].length; k++) {
                         if (possileMoves[j][k]) {
@@ -61,14 +62,16 @@ public class Piece extends VBox implements Serializable {
                     }
 //                System.out.println(Arrays.toString(possileMoves[j]));
                 }
-                Board.selectedPiece = this;
+                board.selectedPiece = this;
             } catch (IOException | ClassNotFoundException ioException) {
                 ioException.printStackTrace();
             }
         });
     }
 
-    ;
+    public Board getBoard() {
+        return this.board;
+    }
 
     public boolean isBlack() {
         return this.color == TeamColor.BLACK;
@@ -90,7 +93,7 @@ public class Piece extends VBox implements Serializable {
         return this.color;
     }
 
-    public PieceEnum getPieceType() {
+    public PieceType getPieceType() {
         return this.pieceType;
     }
 
@@ -130,9 +133,10 @@ public class Piece extends VBox implements Serializable {
     }
 
     public static boolean[][] getPossibleMoves(Piece piece, boolean targetFriend) {
-        Space[][] spaces = Board.getSpaces();
+        Space[][] spaces = piece.getBoard().getSpaces();
         BoardLocation location = piece.getLocation();
         boolean[][] moveSpaces = new boolean[8][8];
+        Board board = piece.getBoard();
 
         switch (piece.pieceType) {
             case PAWN:
@@ -169,7 +173,7 @@ public class Piece extends VBox implements Serializable {
                     BoardLocation oldLoc = new BoardLocation(piece.getLocation());
                     BoardLocation newLoc = new BoardLocation(i, j);
                     Board.simulateMove(spacesCopy, pieceCopy, newLoc, oldLoc);
-                    boolean[][] possMoves = Board.getPossibleMovesByColor(Board.getOpposingColor().get(pieceCopy.getColor()), spacesCopy);
+                    boolean[][] possMoves = board.getPossibleMovesByColor(board.getOpposingColor().get(pieceCopy.getColor()), spacesCopy);
 //                    System.out.println("_-_-_-_-_");
 //                    for (int k = 0; k < possMoves.length; k++) {
 //                        System.out.println(Arrays.toString(possMoves[k]));
