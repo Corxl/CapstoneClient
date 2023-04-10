@@ -14,7 +14,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.UUID;
 
 public class ClientHandler implements Serializable {
     private Socket socket = null;
@@ -23,7 +22,8 @@ public class ClientHandler implements Serializable {
     private static int port = 4909;
     private transient Board board;
     private ChessMain main;
-    private UUID clientID;
+    private String clientID;
+    private String gameKey;
 
     public ClientHandler(ChessMain chessMain) throws IOException, ClassNotFoundException {
         //this.board = board;
@@ -31,8 +31,8 @@ public class ClientHandler implements Serializable {
         InetAddress host = InetAddress.getLocalHost();
         socket = new Socket(host.getHostName(), port);
         input = new ObjectInputStream(socket.getInputStream());
-        this.clientID = (UUID) input.readObject();
-        System.out.println(this.clientID);
+        this.clientID = (String) input.readObject();
+        System.out.println(this.clientID + "?????");
         new ReceiveDataThread().start();
     }
 
@@ -49,7 +49,9 @@ public class ClientHandler implements Serializable {
 
     public boolean[][] getPossibleMoves(Piece p, boolean targetFriendly) throws IOException, ClassNotFoundException {
         ioout = new ObjectOutputStream(socket.getOutputStream());
-        Object[] data = new Object[]{"getPossibleMoves", p.getLocation(), targetFriendly, board.getClientPlayer()};
+        //Object[] data = new Object[]{"getPossibleMoves", p.getLocation(), targetFriendly, board.getClientPlayer()};
+        System.out.println("Gamekey = " + this.gameKey);
+        Object[] data = new Object[]{"getPossibleMoves", this.clientID, this.gameKey, new int[]{p.getLocation().getX(), p.getLocation().getY()}};
         ioout.writeObject(data);
         input = new ObjectInputStream(socket.getInputStream());
         boolean[][] moveSpaces = (boolean[][]) input.readObject();
@@ -81,7 +83,8 @@ public class ClientHandler implements Serializable {
     }
 
     public Object joinLobby(String code) throws IOException, ClassNotFoundException {
-        return sendData(new Object[]{"joinLobby", this.clientID, code});
+        Object data = sendData(new Object[]{"joinLobby", this.clientID, code});
+        return data;
     }
 
     public Object sendData(Object[] data) throws IOException, ClassNotFoundException {
@@ -110,15 +113,11 @@ public class ClientHandler implements Serializable {
         public void run() {
             while (true) {
                 try {
-                    inputData = new ObjectInputStream(socketdata.getInputStream());
-                    System.out.println("Heng??");
+                    input = new ObjectInputStream(socketdata.getInputStream());
                     //if (!(inputData.readObject() instanceof Object[])) continue;
-                    System.out.println("Hmm?");
-                    Object[] data = (Object[]) inputData.readObject();
+                    Object[] data = (Object[]) input.readObject();
                     String dataType = (String) data[0];
-                    System.out.println("YIPPIE!!!");
                     if (!dataType.equals("updateBoard")) return;
-                    System.out.println("YIPPIE!!!2");
                     Integer[][][] layout = (Integer[][][]) data[1];
                     BoardLayout[][] bLayout = new BoardLayout[8][8];
                     for (int i = 0; i < layout.length; i++) {
@@ -130,9 +129,7 @@ public class ClientHandler implements Serializable {
                             bLayout[i][i1] = new BoardLayout(PieceType.getTypeByKey(layout[i][i1][0]), TeamColor.getTypeByKey(layout[i][i1][1]));
                         }
                     }
-                    System.out.println("??????????????????????????");
                     main.updateBoard(bLayout);
-                    System.out.println("223232");
 
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Connection Terminated.");

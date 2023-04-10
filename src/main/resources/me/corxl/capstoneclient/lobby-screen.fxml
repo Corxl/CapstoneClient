@@ -1,48 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="136.0"
-            prefWidth="486.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="me.corxl.capstoneclient.lobby.LobbyScreen">
-    <children>
-        <BorderPane prefHeight="154.0" prefWidth="381.0">
-            <center>
-                <AnchorPane prefHeight="400.0" prefWidth="600.0">
+<?import javafx.scene.text.*?>
+<BorderPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.corxl.capstoneclient.lobby.LobbyScreen">
+    <center>
+        <VBox prefHeight="396.0" prefWidth="290.0" styleClass="accent-container" stylesheets="@lobby.css">
+            <children>
+                <StackPane fx:id="top" prefHeight="11.0" prefWidth="288.0">
+                    <VBox.margin>
+                        <Insets bottom="-10.0"/>
+                    </VBox.margin>
+                    <cursor>
+                        <Cursor fx:constant="MOVE"/>
+                    </cursor>
+                </StackPane>
+                <VBox alignment="CENTER" prefHeight="359.0" prefWidth="260.0" styleClass="main-container"
+                      stylesheets="@lobby.css">
                     <children>
-                        <VBox prefHeight="104.0" prefWidth="454.0">
+                        <Label alignment="CENTER" prefHeight="18.0" prefWidth="180.0" text="Welcome!" textFill="WHITE">
+                            <font>
+                                <Font name="Consolas" size="15.0"/>
+                            </font>
+                            <VBox.margin>
+                                <Insets bottom="10.0"/>
+                            </VBox.margin>
+                        </Label>
+                        <Separator opacity="0.18" prefWidth="200.0">
+                            <padding>
+                                <Insets left="25.0" right="25.0"/>
+                            </padding>
+                            <VBox.margin>
+                                <Insets bottom="5.0"/>
+                            </VBox.margin>
+                        </Separator>
+                        <HBox alignment="CENTER" prefHeight="33.0" prefWidth="239.0" spacing="10.0">
                             <children>
-                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Enter Lobby Code:"/>
-                                <HBox prefHeight="26.0" prefWidth="600.0">
-                                    <children>
-                                        <TextField fx:id="codeInput" onKeyTyped="#codeTyped"/>
-                                        <Button fx:id="join" mnemonicParsing="false" onAction="#joinLobby" text="Join"/>
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" prefHeight="48.0" prefWidth="343.0">
-                                    <children>
-                                        <Button fx:id="createLobby" mnemonicParsing="false" onAction="#createLobby"
-                                                text="Create Lobby">
-                                            <HBox.margin>
-                                                <Insets right="15.0"/>
-                                            </HBox.margin>
-                                        </Button>
-                                        <Label fx:id="code" onMouseClicked="#copyCode" prefHeight="47.0"
-                                               prefWidth="342.0"/>
-                                    </children>
-                                </HBox>
+                                <TextField fx:id="codeInput" onKeyTyped="#codeTyped" prefHeight="26.0" prefWidth="92.0"
+                                           promptText="Lobby Code" styleClass="inputs" stylesheets="@lobby.css"/>
+                                <Button fx:id="join" mnemonicParsing="false" onAction="#joinLobby" prefHeight="26.0"
+                                        prefWidth="91.0" styleClass="buttons" stylesheets="@lobby.css" text="Join">
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </Button>
                             </children>
-                        </VBox>
+                            <padding>
+                                <Insets left="10.0" right="10.0"/>
+                            </padding>
+                        </HBox>
+                        <Separator opacity="0.18" prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets left="25.0" right="25.0" top="5.0"/>
+                            </VBox.margin>
+                        </Separator>
+                        <HBox alignment="CENTER" prefHeight="36.0" prefWidth="239.0">
+                            <children>
+                                <Button fx:id="createLobby" mnemonicParsing="false" onAction="#createLobby"
+                                        prefHeight="26.0" prefWidth="187.0" styleClass="buttons"
+                                        stylesheets="@lobby.css" text="Create Lobby">
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </Button>
+                            </children>
+                        </HBox>
+                        <StackPane prefHeight="175.0" prefWidth="187.0">
+                            <VBox.margin>
+                                <Insets bottom="10.0" left="25.0" right="25.0" top="-5.0"/>
+                            </VBox.margin>
+                            <children>
+                                <VBox alignment="TOP_CENTER" focusTraversable="true" prefHeight="97.0" prefWidth="239.0"
+                                      styleClass="accent-container" stylesheets="@lobby.css">
+                                    <children>
+                                        <Label fx:id="title" alignment="CENTER" prefHeight="19.0" prefWidth="225.0"
+                                               text="Lobby Status" textFill="#d9d9d9" underline="true">
+                                            <font>
+                                                <Font name="Consolas" size="15.0"/>
+                                            </font>
+                                        </Label>
+                                        <TextFlow fx:id="textFlow" prefHeight="50.0" prefWidth="218.0"
+                                                  textAlignment="CENTER">
+                                            <children>
+                                                <Text fx:id="lobbyStatus" fill="WHITE" onMouseClicked="#copyCode"
+                                                      strokeType="OUTSIDE" strokeWidth="0.0" text="NOT CONNECTED"
+                                                      wrappingWidth="188.9695053100586">
+                                                    <font>
+                                                        <Font name="Consolas" size="12.0"/>
+                                                    </font>
+                                                </Text>
+                                            </children>
+                                            <VBox.margin>
+                                                <Insets left="15.0" right="15.0" top="10.0"/>
+                                            </VBox.margin>
+                                            <cursor>
+                                                <Cursor fx:constant="DEFAULT"/>
+                                            </cursor>
+                                        </TextFlow>
+                                    </children>
+                                    <StackPane.margin>
+                                        <Insets bottom="10.0" top="10.0"/>
+                                    </StackPane.margin>
+                                    <padding>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                    </padding>
+                                </VBox>
+                            </children>
+                        </StackPane>
+                        <StackPane alignment="CENTER_RIGHT">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#quitLobby" prefHeight="26.0" prefWidth="90.0"
+                                        styleClass="buttons" stylesheets="@lobby.css" text="Quit">
+                                    <cursor>
+                                        <Cursor fx:constant="HAND"/>
+                                    </cursor>
+                                </Button>
+                            </children>
+                        </StackPane>
                     </children>
-                </AnchorPane>
-            </center>
-            <padding>
-                <Insets bottom="25.0" left="25.0" right="25.0" top="25.0"/>
-            </padding>
-        </BorderPane>
-    </children>
-</AnchorPane>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="15.0"/>
+                    </padding>
+                    <VBox.margin>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                    </VBox.margin>
+                </VBox>
+            </children>
+            <BorderPane.margin>
+                <Insets/>
+            </BorderPane.margin>
+        </VBox>
+    </center>
+</BorderPane>

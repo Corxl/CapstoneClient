@@ -1,12 +1,17 @@
 package me.corxl.capstoneclient.lobby;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import me.corxl.capstoneclient.ChessMain;
 import me.corxl.capstoneclient.ClientHandler;
 import me.corxl.capstoneclient.chess.pieces.PieceType;
@@ -18,7 +23,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class LobbyScreen implements Initializable {
-
+    @FXML
+    private StackPane top;
+    @FXML
+    private TextFlow textFlow;
     @FXML
     private TextField codeInput;
 
@@ -29,8 +37,12 @@ public class LobbyScreen implements Initializable {
     private Button join;
 
     @FXML
-    private Label code;
+    public Text lobbyStatus;
 
+    @FXML
+    public Label title;
+
+    private final String defaultTitle = "Lobby Status", waitingForPlayer = "Waiting for other player...";
     private ClientHandler client;
     private ChessMain main;
     private String lobbyCode;
@@ -45,9 +57,19 @@ public class LobbyScreen implements Initializable {
             {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.KING, PieceType.QUEEN, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK}
     };
 
+    double xOffset, yOffset;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.join.setDisable(true);
+        top.setOnMousePressed(event -> {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        });
+        top.setOnMouseDragged(event -> {
+            main.getStage().setX(event.getScreenX() - xOffset);
+            main.getStage().setY(event.getScreenY() - yOffset);
+        });
     }
 
     public void setClient(ClientHandler client) {
@@ -57,7 +79,8 @@ public class LobbyScreen implements Initializable {
     @FXML
     void createLobby(ActionEvent event) throws IOException, ClassNotFoundException {
         this.lobbyCode = client.createLobby();
-        code.setText("Lobby Code: " + lobbyCode + "\nWaiting for another player...");
+        lobbyStatus.setText("Code: " + this.lobbyCode + "\n" + waitingForPlayer);
+        lobbyStatus.setCursor(Cursor.HAND);
     }
 
     public String getLobbyCode() {
@@ -77,7 +100,22 @@ public class LobbyScreen implements Initializable {
          */
         if (lobbyData instanceof String) {
             this.codeInput.setText("");
-            this.code.setText((String) lobbyData);
+            this.lobbyStatus.setText((String) lobbyData);
+            if (lobbyData.equals("Already in lobby.")) {
+                this.lobbyStatus.setText("Code: " + this.lobbyCode + "\n" + lobbyData);
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(2500);
+                        Platform.runLater(() -> {
+                            lobbyStatus.setText("Code: " + lobbyCode + "\n" + waitingForPlayer);
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }).start();
+
+            }
             return;
         }
         //main.loadBoardWindow(layout);
@@ -91,13 +129,29 @@ public class LobbyScreen implements Initializable {
         else
             this.join.setDisable(true);
     }
-
     @FXML
     void copyCode(MouseEvent event) {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(this.lobbyCode), null);
+        this.lobbyStatus.setText("Code: " + this.lobbyCode + "\nCopied lobby code to clipboard.");
+        new Thread(() -> {
+            try {
+                Thread.sleep(2500);
+                Platform.runLater(() -> {
+                    lobbyStatus.setText("Code: " + lobbyCode + "\n" + waitingForPlayer);
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }).start();
     }
 
     public void setMain(ChessMain chessMain) {
         this.main = chessMain;
+    }
+
+    public void quitLobby(ActionEvent actionEvent) {
+        main.getStage().hide();
+        System.exit(0);
     }
 }

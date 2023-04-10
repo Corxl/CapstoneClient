@@ -4,7 +4,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.board.BoardLayout;
 import me.corxl.capstoneclient.lobby.LobbyScreen;
@@ -32,11 +34,14 @@ public class ChessMain extends Application {
         this.STATE = LobbyState.LOBBY;
         CLIENT_CONNECTION = new ClientHandler(this);
         FXMLLoader fxmlLoader = new FXMLLoader(ChessMain.class.getResource("lobby-screen.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 750, 800);
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.initStyle(StageStyle.TRANSPARENT);
+        scene.setFill(Color.TRANSPARENT);
         ((LobbyScreen) fxmlLoader.getController()).setMain(this);
         ((LobbyScreen) fxmlLoader.getController()).setClient(CLIENT_CONNECTION);
         stage.setTitle("Chess " + VERSION);
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
@@ -60,14 +65,22 @@ public class ChessMain extends Application {
     protected void loadBoardWindow(BoardLayout[][] layout) throws IOException, ClassNotFoundException {
         this.STATE = LobbyState.GAME;
         Board b = new Board(layout);
-        CLIENT_CONNECTION = new ClientHandler(this);
+        //CLIENT_CONNECTION = new ClientHandler(this);
         b.setClient(CLIENT_CONNECTION);
         FXMLLoader fxmlLoader = new FXMLLoader(ChessMain.class.getResource("main-window.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 750, 800);
+        Scene scene = new Scene(fxmlLoader.load());
+        scene.setFill(Color.TRANSPARENT);
         ((ChessController) fxmlLoader.getController()).setBoard(b);
+        ((ChessController) fxmlLoader.getController()).setMainStage(stage);
         stage.setTitle("Chess " + VERSION);
         stage.setScene(scene);
+        stage.setResizable(false);
+
         stage.show();
+    }
+
+    public Stage getStage() {
+        return this.stage;
     }
 
     public ClientHandler getClientConnection() {

@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import me.corxl.capstoneclient.chess.board.Board;
 
 import java.net.URL;
@@ -15,10 +16,15 @@ public class ChessController implements Initializable {
     private VBox mainPane;
 
     private Board currentBoard;
+    private Stage stage;
 
     public void setBoard(Board b) {
         this.currentBoard = b;
         mainPane.getChildren().add(0, currentBoard);
+    }
+
+    public final void setMainStage(Stage stage) {
+        this.stage = stage;
     }
 
 
@@ -33,9 +39,10 @@ public class ChessController implements Initializable {
 
 
     @FXML
-    void resetGame(ActionEvent event) {
+    void quit(ActionEvent event) {
         //Board.checkKingsSaftey();
-
+        stage.hide();
+        System.exit(0);
 
 //        Platform.runLater(() -> {
 //            mainPane.getChildren().remove(currentBoard);

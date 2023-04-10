@@ -45,9 +45,9 @@ public class Piece extends VBox implements Serializable {
         this.getChildren().add(v);
         this.setOnMouseClicked((e) -> {
             try {
-                if (this.color != board.getTurn()) {
-                    return;
-                }
+//                if (this.color != board.getTurn()) {
+//                    return;
+//                }
                 board.clearSelections();
                 System.out.println("H :: " + this.pawnMoved);
                 boolean[][] possileMoves = board.getClient().getPossibleMoves(this, false);
