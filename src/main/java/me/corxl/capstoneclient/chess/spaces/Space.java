@@ -1,5 +1,6 @@
 package me.corxl.capstoneclient.chess.spaces;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -9,7 +10,6 @@ import javafx.scene.paint.Color;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.pieces.Piece;
 import me.corxl.capstoneclient.chess.pieces.PieceType;
-import me.corxl.capstoneclient.chess.pieces.TeamColor;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -114,39 +114,39 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
         System.out.println(board.isPieceSelected + ";;;");
         if (board.selectedSpaces[this.getLocation().getX()][this.getLocation().getY()]) {
             if (board.selectedPiece != null) {
-                Piece deadPiece = board.getSpaces()[this.getLocation().getX()][this.getLocation().getY()].getPiece();
-                if (deadPiece != null) {
-                    if (deadPiece.getPieceType() == PieceType.QUEEN)
-                        play("queen_death.wav");
-                    else
-                        play(new Random().nextInt(5) + 1 + ".wav");
-                } else
-                    play(new Random().nextInt(5) + 1 + ".wav");
+//                Piece deadPiece = board.getSpaces()[this.getLocation().getX()][this.getLocation().getY()].getPiece();
+//                if (deadPiece != null) {
+//                    if (deadPiece.getPieceType() == PieceType.QUEEN)
+//                        play("queen_death.wav");
+//                    else
+//                        play(new Random().nextInt(5) + 1 + ".wav");
+//                } else
+//                    play(new Random().nextInt(5) + 1 + ".wav");
                 //Board.setPiece(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
-
-                Space[][] newSpaces = board.getClient().requestMove(board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), board.selectedPiece.getLocation());
-                for (int i = 0; i < newSpaces.length; i++) {
-                    for (int j = 0; j < newSpaces[i].length; j++) {
-                        System.out.print(newSpaces[i][j].getPiece() + ", ");
-                        Piece p = newSpaces[i][j].getPiece();
-                        System.out.println(p == null ? "" : p.isPawnMoved() + " <---");
-                        board.getSpaces()[i][j].setPiece(p == null ? null : new Piece(p.getPieceType(), p.getColor(), p.getLocation(), this.board));
-                    }
-                    System.out.println();
+                System.out.println("1");
+                PieceType p = board.getClient().requestMove(new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), board.selectedPiece.getLocation());
+                if (p == null) {
+                    board.isPieceSelected = false;
+                    board.clearSelections();
+                    return;
                 }
-
-                board.isPieceSelected = false;
-                board.clearSelections();
-                TeamColor oppositeColor = board.getTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
-                boolean isCheck = Board.isInCheck(oppositeColor, board.getSpaces(), board.getPossibleMovesByColor(board.getTurn()));
-                board.getIsChecked().put(oppositeColor, isCheck);
-                //System.out.println(isCheck ? oppositeColor + " is in check!" : oppositeColor + " is not in check...");
-                if (isCheck) {
-                    System.out.println(board.checkForGameOver() ? "The game is Over :(." : "The game is NOT over :).");
-                }
-
-
-                board.setTurn(oppositeColor);
+                System.out.println("2");
+                if (p == PieceType.QUEEN)
+                    play("queen_death.wav");
+                else
+                    play(new Random().nextInt(5) + 1 + ".wav");
+                ;
+                System.out.println("3");
+//                TeamColor oppositeColor = board.getTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+//                boolean isCheck = Board.isInCheck(oppositeColor, board.getSpaces(), board.getPossibleMovesByColor(board.getTurn()));
+//                board.getIsChecked().put(oppositeColor, isCheck);
+//                //System.out.println(isCheck ? oppositeColor + " is in check!" : oppositeColor + " is not in check...");
+//                if (isCheck) {
+//                    System.out.println(board.checkForGameOver() ? "The game is Over :(." : "The game is NOT over :).");
+//                }
+//
+//
+//                board.setTurn(oppositeColor);
 
 
             }
@@ -170,14 +170,16 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
 
     @Override
     public void setPiece(Piece p) {
-        if (this.currentPiece != null) {
-            this.getChildren().remove(this.currentPiece);
-        }
-        this.currentPiece = p;
-        if (this.currentPiece != null) {
-            this.getChildren().add(this.currentPiece);
-            p.setLocation(this.location);
-        }
+        Platform.runLater(() -> {
+            if (this.currentPiece != null) {
+                this.getChildren().remove(this.currentPiece);
+            }
+            this.currentPiece = p;
+            if (this.currentPiece != null) {
+                this.getChildren().add(this.currentPiece);
+                p.setLocation(this.location);
+            }
+        });
 
     }
 

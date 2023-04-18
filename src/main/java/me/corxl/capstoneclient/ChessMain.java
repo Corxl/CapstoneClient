@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.board.BoardLayout;
+import me.corxl.capstoneclient.chess.pieces.TeamColor;
+import me.corxl.capstoneclient.chess.players.Player;
 import me.corxl.capstoneclient.lobby.LobbyScreen;
 import me.corxl.capstoneclient.lobby.LobbyState;
 
@@ -45,13 +47,13 @@ public class ChessMain extends Application {
         stage.show();
     }
 
-    protected void updateBoard(BoardLayout[][] layout) throws IOException, ClassNotFoundException {
+    protected void updateBoard(BoardLayout[][] layout, TeamColor c) throws IOException, ClassNotFoundException {
         System.out.println("update");
         if (this.STATE == LobbyState.LOBBY) {
             System.out.println("State Changed");
             Platform.runLater(() -> {
                 try {
-                    loadBoardWindow(layout);
+                    loadBoardWindow(layout, c);
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -62,11 +64,14 @@ public class ChessMain extends Application {
         }
     }
 
-    protected void loadBoardWindow(BoardLayout[][] layout) throws IOException, ClassNotFoundException {
+    protected void loadBoardWindow(BoardLayout[][] layout, TeamColor c) throws IOException, ClassNotFoundException {
         this.STATE = LobbyState.GAME;
         Board b = new Board(layout);
         //CLIENT_CONNECTION = new ClientHandler(this);
+        CLIENT_CONNECTION.setBoard(b);
         b.setClient(CLIENT_CONNECTION);
+        if (this.getClientConnection().getBoard().getClientPlayer() == null)
+            this.getClientConnection().getBoard().setClientPlayer(new Player("", c));
         FXMLLoader fxmlLoader = new FXMLLoader(ChessMain.class.getResource("main-window.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.setFill(Color.TRANSPARENT);

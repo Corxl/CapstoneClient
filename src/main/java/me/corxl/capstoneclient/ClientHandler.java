@@ -40,6 +40,10 @@ public class ClientHandler implements Serializable {
         return this.board;
     }
 
+    public void setBoard(Board b) {
+        this.board = b;
+    }
+
     public void closeConnection() throws IOException {
         ioout.close();
         input.close();
@@ -48,9 +52,12 @@ public class ClientHandler implements Serializable {
     }
 
     public boolean[][] getPossibleMoves(Piece p, boolean targetFriendly) throws IOException, ClassNotFoundException {
-        ioout = new ObjectOutputStream(socket.getOutputStream());
+
         //Object[] data = new Object[]{"getPossibleMoves", p.getLocation(), targetFriendly, board.getClientPlayer()};
         System.out.println("Gamekey = " + this.gameKey);
+        if (p.getColor() != this.getBoard().getClientPlayer().getTeamColor())
+            return new boolean[8][8];
+        ioout = new ObjectOutputStream(socket.getOutputStream());
         Object[] data = new Object[]{"getPossibleMoves", this.clientID, this.gameKey, new int[]{p.getLocation().getX(), p.getLocation().getY()}};
         ioout.writeObject(data);
         input = new ObjectInputStream(socket.getInputStream());
@@ -66,12 +73,14 @@ public class ClientHandler implements Serializable {
         return (Space[][]) input.readObject();
     }
 
-    public Space[][] requestMove(Piece p, BoardLocation newLoc, BoardLocation oldLoc) throws IOException, ClassNotFoundException {
+    public PieceType requestMove(BoardLocation newLoc, BoardLocation oldLoc) throws IOException, ClassNotFoundException {
         ioout = new ObjectOutputStream(socket.getOutputStream());
-        Object[] data = new Object[]{"requestMove", p, newLoc, oldLoc, null};
+        Object[] data = new Object[]{"requestMove", new int[]{newLoc.getX(), newLoc.getY()}, new int[]{oldLoc.getX(), oldLoc.getY()}, null};
         ioout.writeObject(data);
         input = new ObjectInputStream(socket.getInputStream());
-        return (Space[][]) input.readObject();
+//        if (input.readObject() == null)
+//            return null;
+        return PieceType.getTypeByKey((Integer) input.readObject());
     }
 
     public String createLobby() throws IOException, ClassNotFoundException {
@@ -120,6 +129,7 @@ public class ClientHandler implements Serializable {
                     if (!dataType.equals("updateBoard")) return;
                     Integer[][][] layout = (Integer[][][]) data[1];
                     BoardLayout[][] bLayout = new BoardLayout[8][8];
+                    TeamColor c = TeamColor.getTypeByKey((Integer) data[2]);
                     for (int i = 0; i < layout.length; i++) {
                         for (int i1 = 0; i1 < layout[i].length; i1++) {
                             if (layout[i][i1][0] == null || layout[i][i1][1] == null) {
@@ -129,7 +139,9 @@ public class ClientHandler implements Serializable {
                             bLayout[i][i1] = new BoardLayout(PieceType.getTypeByKey(layout[i][i1][0]), TeamColor.getTypeByKey(layout[i][i1][1]));
                         }
                     }
-                    main.updateBoard(bLayout);
+                    System.out.println("-???????-");
+                    main.updateBoard(bLayout, c);
+
 
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Connection Terminated.");

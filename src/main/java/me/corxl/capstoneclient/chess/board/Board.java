@@ -89,14 +89,6 @@ public class Board extends GridPane implements BoardInterface {
         return isChecked;
     }
 
-    public TeamColor getTurn() {
-        return turn;
-    }
-
-    public void setTurn(TeamColor color) {
-        turn = color;
-    }
-
     public void updateBoard(BoardLayout[][] layout) {
         for (int i = 0; i < spaces.length; i++) {
             for (int i1 = 0; i1 < spaces[i].length; i1++) {
@@ -110,141 +102,6 @@ public class Board extends GridPane implements BoardInterface {
 
             }
         }
-    }
-
-
-    public boolean[][] getPossibleMovesByColor(TeamColor color) {
-        boolean[][] moveSpaces = new boolean[8][8];
-        for (Space[] space : spaces) {
-            for (int j = 0; j < space.length; j++) {
-                Space s = space[j];
-                if (s.isEmpty())
-                    continue;
-                if (s.getPiece().getColor() != color)
-                    continue;
-                Piece p = s.getPiece();
-
-                boolean[][] moves = Piece.getPossibleMoves(p, true);
-                for (int x = 0; x < moves.length; x++) {
-                    for (int y = 0; y < moves[x].length; y++) {
-                        if (moves[x][y]) {
-                            moveSpaces[x][y] = true;
-                        }
-                    }
-                }
-
-            }
-        }
-        return moveSpaces;
-    }
-
-    public boolean[][] getPossibleMovesByColor(TeamColor color, boolean targetFriend) {
-        boolean[][] moveSpaces = new boolean[8][8];
-        for (Space[] space : spaces) {
-            for (int j = 0; j < space.length; j++) {
-                Space s = space[j];
-                if (s.isEmpty())
-                    continue;
-                if (s.getPiece().getColor() != color)
-                    continue;
-                Piece p = s.getPiece();
-
-                boolean[][] moves = Piece.getPossibleMoves(p, targetFriend);
-                for (int x = 0; x < moves.length; x++) {
-                    for (int y = 0; y < moves[x].length; y++) {
-                        if (moves[x][y]) {
-                            moveSpaces[x][y] = true;
-                        }
-                    }
-                }
-
-            }
-        }
-        return moveSpaces;
-    }
-
-    public boolean[][] getPossibleMovesByColor(TeamColor color, Space[][] sps) {
-        boolean[][] moveSpaces = new boolean[8][8];
-        for (Space[] space : sps) {
-            for (int j = 0; j < space.length; j++) {
-                Space s = space[j];
-                if (s.isEmpty())
-                    continue;
-                if (s.getPiece().getColor() != color)
-                    continue;
-                Piece p = s.getPiece();
-
-                boolean[][] moves = Piece.getPossibleMoves(p, true, sps);
-                for (int x = 0; x < moves.length; x++) {
-                    for (int y = 0; y < moves[x].length; y++) {
-                        if (moves[x][y]) {
-                            moveSpaces[x][y] = true;
-                        }
-                    }
-                }
-
-            }
-        }
-        return moveSpaces;
-    }
-
-    public boolean checkForGameOver() {
-        TeamColor opposingColor = getOpposingColor().get(getTurn());
-        System.out.println(opposingColor);
-        boolean[][] possibleSpaces = getPossibleMovesByColor(opposingColor, false);
-
-        for (int i = 0; i < possibleSpaces.length; i++) {
-            for (int j = 0; j < possibleSpaces[i].length; j++) {
-                if (possibleSpaces[i][j]) {
-                    System.out.println(i + " | " + j);
-                    return false;
-                }
-            }
-        }
-//        for (int i = 0; i < spaces.length; i++) {
-//            for (int j = 0; j < spaces[i].length; j++) {
-//                if (spaces[i][j].isEmpty())
-//                    continue;
-//                Piece p = spaces[i][j].getPiece();
-//                if (p.getColor() != opposingColor)
-//                    continue;
-//                Piece pieceCopy = new Piece(p);
-//                Space[][] spacesCopy = new Space[8][8];
-//                for (int x = 0; x < spaces.length; x++) {
-//                    for (int y = 0; y < spaces[x].length; y++) {
-//                        spacesCopy[x][y] = new Space(spaces[x][y]);
-//                    }
-//                }
-//                BoardLocation oldLoc = new BoardLocation(pieceCopy.getLocation());
-//                BoardLocation newLoc = new BoardLocation(i, j);
-//                Board.simulateMove(spacesCopy, pieceCopy, newLoc, oldLoc);
-//                boolean[][] possMoves = Board.getPossibleMovesByColor(Board.getOpposingColor().get(pieceCopy.getColor()), spacesCopy);
-//                boolean isChecked = Board.isInCheck(pieceCopy.getColor(), spacesCopy, possMoves);
-//                if (!isChecked)
-//                    return false;
-//            }
-//        }
-
-        return true;
-    }
-
-    public static boolean isInCheck(TeamColor targetColor, Space[][] spaces, boolean[][] moveSpaces) {
-        for (int i = 0; i < moveSpaces.length; i++) {
-            for (int j = 0; j < moveSpaces[i].length; j++) {
-                if (moveSpaces[i][j]) {
-                    Space s = spaces[i][j];
-                    if (s.isEmpty())
-                        continue;
-                    Piece p = s.getPiece();
-                    if (p.getColor() != targetColor)
-                        continue;
-                    if (p.getPieceType() != PieceType.KING)
-                        continue;
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public Player getClientPlayer() {
@@ -280,14 +137,14 @@ public class Board extends GridPane implements BoardInterface {
 
     }
 
-    public static void simulateMove(Space[][] simSpaces, Piece p, BoardLocation newLocation, BoardLocation oldLocation) {
-        if (p == null)
-            return;
-        Space s = simSpaces[newLocation.getX()][newLocation.getY()];
-        Space old = simSpaces[oldLocation.getX()][oldLocation.getY()];
-        s.setPiece(p);
-        old.setPiece(null);
-    }
+//    public static void simulateMove(Space[][] simSpaces, Piece p, BoardLocation newLocation, BoardLocation oldLocation) {
+//        if (p == null)
+//            return;
+//        Space s = simSpaces[newLocation.getX()][newLocation.getY()];
+//        Space old = simSpaces[oldLocation.getX()][oldLocation.getY()];
+//        s.setPiece(p);
+//        old.setPiece(null);
+//    }
 
     public void clearSelections() {
         for (Space[] spArr : spaces) {
@@ -296,5 +153,9 @@ public class Board extends GridPane implements BoardInterface {
             }
         }
         selectedSpaces = new boolean[8][8];
+    }
+
+    public boolean isSelected(BoardLocation loc) {
+        return this.selectedSpaces[loc.getX()][loc.getY()];
     }
 }
