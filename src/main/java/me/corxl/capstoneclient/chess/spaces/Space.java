@@ -24,7 +24,7 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
     private final BoardLocation location;
     private Piece currentPiece;
     private final String SELECT_FILE_LOCATION = "\\src\\main\\resources\\me\\corxl\\capstoneclient\\pieces\\select.png";
-    private final String soundDir = System.getProperty("user.dir") + "\\src\\main\\resources\\me\\corxl\\capstoneclient\\sounds\\";
+    private static final String soundDir = System.getProperty("user.dir") + "\\src\\main\\resources\\me\\corxl\\capstoneclient\\sounds\\";
     private ImageView select;
     private boolean isSelected = false;
     private transient Board board;
@@ -99,7 +99,7 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
         });
     }
 
-    public void play(String filename) {
+    private static void play(String filename) {
         try {
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(new File(soundDir + filename)));
@@ -109,46 +109,29 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
         }
     }
 
+    public static void playDeathSound(PieceType type) {
+        if (type == PieceType.QUEEN)
+            play("queen_death.wav");
+        else
+            play(new Random().nextInt(5) + 1 + ".wav");
+    }
+
     private void onClick() throws IOException, ClassNotFoundException {
         board.isPieceSelected = this.currentPiece != null;
         System.out.println(board.isPieceSelected + ";;;");
         if (board.selectedSpaces[this.getLocation().getX()][this.getLocation().getY()]) {
             if (board.selectedPiece != null) {
-//                Piece deadPiece = board.getSpaces()[this.getLocation().getX()][this.getLocation().getY()].getPiece();
-//                if (deadPiece != null) {
-//                    if (deadPiece.getPieceType() == PieceType.QUEEN)
-//                        play("queen_death.wav");
-//                    else
-//                        play(new Random().nextInt(5) + 1 + ".wav");
-//                } else
-//                    play(new Random().nextInt(5) + 1 + ".wav");
-                //Board.setPiece(Board.selectedPiece, new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), Board.selectedPiece.getLocation());
                 System.out.println("1");
                 PieceType p = board.getClient().requestMove(new BoardLocation(this.getLocation().getX(), this.getLocation().getY()), board.selectedPiece.getLocation());
-                if (p == null) {
-                    board.isPieceSelected = false;
-                    board.clearSelections();
-                    return;
-                }
-                System.out.println("2");
-                if (p == PieceType.QUEEN)
-                    play("queen_death.wav");
-                else
-                    play(new Random().nextInt(5) + 1 + ".wav");
-                ;
-                System.out.println("3");
-//                TeamColor oppositeColor = board.getTurn() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
-//                boolean isCheck = Board.isInCheck(oppositeColor, board.getSpaces(), board.getPossibleMovesByColor(board.getTurn()));
-//                board.getIsChecked().put(oppositeColor, isCheck);
-//                //System.out.println(isCheck ? oppositeColor + " is in check!" : oppositeColor + " is not in check...");
-//                if (isCheck) {
-//                    System.out.println(board.checkForGameOver() ? "The game is Over :(." : "The game is NOT over :).");
+                this.board.clearSelections();
+//                if (p == null) {
+//                    board.isPieceSelected = false;
+//                    board.clearSelections();
+//                    this.board.isSelected(this.location);
+//                    board.isPieceSelected = true;
+//                    return;
 //                }
-//
-//
-//                board.setTurn(oppositeColor);
-
-
+                //playDeathSound(p);
             }
         }
         if (this.currentPiece == null) {

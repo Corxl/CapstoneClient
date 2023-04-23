@@ -54,9 +54,7 @@ public class Piece extends VBox implements Serializable {
                     return;
                 }
                 board.clearSelections();
-                System.out.println("H :: " + this.pawnMoved);
                 boolean[][] possileMoves = board.getClient().getPossibleMoves(this, false);
-                System.out.println("H2");
                 board.selectedSpaces = possileMoves;
                 Space[][] spaces = board.getSpaces();
                 for (int j = 0; j < possileMoves.length; j++) {

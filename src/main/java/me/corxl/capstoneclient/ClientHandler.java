@@ -24,6 +24,7 @@ public class ClientHandler implements Serializable {
     private ChessMain main;
     private String clientID;
     private String gameKey;
+    private ChessController gameController;
 
     public ClientHandler(ChessMain chessMain) throws IOException, ClassNotFoundException {
         //this.board = board;
@@ -92,19 +93,26 @@ public class ClientHandler implements Serializable {
     }
 
     public Object joinLobby(String code) throws IOException, ClassNotFoundException {
-        Object data = sendData(new Object[]{"joinLobby", this.clientID, code});
-        return data;
+        sendData(new Object[]{"joinLobby", this.clientID, code});
+        return receiveData();
     }
 
-    public Object sendData(Object[] data) throws IOException, ClassNotFoundException {
+    public void sendData(Object[] data) throws IOException, ClassNotFoundException {
         ioout = new ObjectOutputStream(socket.getOutputStream());
         ioout.writeObject(data);
+    }
+
+    public Object receiveData() throws IOException, ClassNotFoundException {
         input = new ObjectInputStream(socket.getInputStream());
         return input.readObject();
     }
 
     public void updateBoard(BoardLayout[][] layout) {
         this.board.updateBoard(layout);
+    }
+
+    public void setGameController(ChessController controller) {
+        this.gameController = controller;
     }
 
     private class ReceiveDataThread extends Thread {
@@ -126,26 +134,33 @@ public class ClientHandler implements Serializable {
                     //if (!(inputData.readObject() instanceof Object[])) continue;
                     Object[] data = (Object[]) input.readObject();
                     String dataType = (String) data[0];
-                    if (!dataType.equals("updateBoard")) return;
-                    Integer[][][] layout = (Integer[][][]) data[1];
-                    BoardLayout[][] bLayout = new BoardLayout[8][8];
-                    TeamColor c = TeamColor.getTypeByKey((Integer) data[2]);
-                    for (int i = 0; i < layout.length; i++) {
-                        for (int i1 = 0; i1 < layout[i].length; i1++) {
-                            if (layout[i][i1][0] == null || layout[i][i1][1] == null) {
-                                bLayout[i][i1] = null;
-                                continue;
+                    if (dataType.equals("updateBoard")) {
+                        Integer[][][] layout = (Integer[][][]) data[1];
+                        BoardLayout[][] bLayout = new BoardLayout[8][8];
+                        TeamColor c = TeamColor.getTypeByKey((Integer) data[2]);
+                        for (int i = 0; i < layout.length; i++) {
+                            for (int i1 = 0; i1 < layout[i].length; i1++) {
+                                if (layout[i][i1][0] == null || layout[i][i1][1] == null) {
+                                    bLayout[i][i1] = null;
+                                    continue;
+                                }
+                                bLayout[i][i1] = new BoardLayout(PieceType.getTypeByKey(layout[i][i1][0]), TeamColor.getTypeByKey(layout[i][i1][1]));
                             }
-                            bLayout[i][i1] = new BoardLayout(PieceType.getTypeByKey(layout[i][i1][0]), TeamColor.getTypeByKey(layout[i][i1][1]));
                         }
+                        main.updateBoard(bLayout, c);
+                        PieceType type = PieceType.getTypeByKey((int) data[3]);
+                        if (type != null && !type.equals(PieceType.NONE)) {
+                            PieceType deathType = PieceType.getTypeByKey((int) data[3]);
+                            Space.playDeathSound(deathType);
+                        }
+                    } else if (dataType.equals("alert")) {
+                        gameController.showDisconnectMessage((String) data[1]);
                     }
-                    System.out.println("-???????-");
-                    main.updateBoard(bLayout, c);
-
-
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Connection Terminated.");
-                    System.exit(0);
+                    if (gameController != null && main.gameStage.isShowing())
+                        gameController.showDisconnectMessage("Connection to server\n has been lost.");
+                    break;
                 }
             }
         }

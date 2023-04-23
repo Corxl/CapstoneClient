@@ -93,7 +93,9 @@ public class LobbyScreen implements Initializable {
         //Board b = client.joinLobby(this.codeInput.getText().trim());
         if (codeInput.getText().length() <= 2)
             return;
+        System.out.println("??");
         Object lobbyData = client.joinLobby(codeInput.getText().trim());
+        System.out.println("?????");
         /*
                 layout[i][i1][0] = PieceType.getTypeByKey(piece.getPieceType().getKey());
                 layout[i][i1][1] = TeamColor.getTypeByKey(piece.getColor().getKey());

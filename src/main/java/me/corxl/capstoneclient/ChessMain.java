@@ -20,16 +20,26 @@ public class ChessMain extends Application {
 
     private ClientHandler CLIENT_CONNECTION;
     private static final String VERSION = "1.0.0";
-    protected Stage stage;
+    protected Stage lobbyStage, gameStage;
     private LobbyState STATE;
 
     @Override
     public void start(Stage stage) throws IOException, ClassNotFoundException {
-        this.stage = stage;
+        this.lobbyStage = stage;
         loadLobbyWindow();
 
 
         //loadBoardWindow(ChessMain.stage);
+    }
+
+    public void toggleGameStage(boolean b) {
+        if (b) {
+            this.lobbyStage.hide();
+            this.gameStage.show();
+        } else {
+            this.lobbyStage.show();
+            this.gameStage.hide();
+        }
     }
 
     protected void loadLobbyWindow() throws IOException, ClassNotFoundException {
@@ -37,14 +47,15 @@ public class ChessMain extends Application {
         CLIENT_CONNECTION = new ClientHandler(this);
         FXMLLoader fxmlLoader = new FXMLLoader(ChessMain.class.getResource("lobby-screen.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.initStyle(StageStyle.TRANSPARENT);
+        lobbyStage.initStyle(StageStyle.TRANSPARENT);
         scene.setFill(Color.TRANSPARENT);
+
         ((LobbyScreen) fxmlLoader.getController()).setMain(this);
         ((LobbyScreen) fxmlLoader.getController()).setClient(CLIENT_CONNECTION);
-        stage.setTitle("Chess " + VERSION);
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.show();
+        lobbyStage.setTitle("Chess " + VERSION);
+        lobbyStage.setScene(scene);
+        lobbyStage.setResizable(false);
+        lobbyStage.show();
     }
 
     protected void updateBoard(BoardLayout[][] layout, TeamColor c) throws IOException, ClassNotFoundException {
@@ -66,26 +77,32 @@ public class ChessMain extends Application {
 
     protected void loadBoardWindow(BoardLayout[][] layout, TeamColor c) throws IOException, ClassNotFoundException {
         this.STATE = LobbyState.GAME;
+        this.lobbyStage.hide();
         Board b = new Board(layout);
         //CLIENT_CONNECTION = new ClientHandler(this);
         CLIENT_CONNECTION.setBoard(b);
         b.setClient(CLIENT_CONNECTION);
+
         if (this.getClientConnection().getBoard().getClientPlayer() == null)
             this.getClientConnection().getBoard().setClientPlayer(new Player("", c));
+
+        gameStage = new Stage();
+
         FXMLLoader fxmlLoader = new FXMLLoader(ChessMain.class.getResource("main-window.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.setFill(Color.TRANSPARENT);
+        CLIENT_CONNECTION.setGameController(((ChessController) fxmlLoader.getController()));
         ((ChessController) fxmlLoader.getController()).setBoard(b);
-        ((ChessController) fxmlLoader.getController()).setMainStage(stage);
-        stage.setTitle("Chess " + VERSION);
-        stage.setScene(scene);
-        stage.setResizable(false);
-
-        stage.show();
+        ((ChessController) fxmlLoader.getController()).setMainStage(gameStage);
+        gameStage.setTitle("Chess " + VERSION);
+        gameStage.setScene(scene);
+        gameStage.initStyle(StageStyle.TRANSPARENT);
+        gameStage.setResizable(false);
+        gameStage.show();
     }
 
     public Stage getStage() {
-        return this.stage;
+        return this.lobbyStage;
     }
 
     public ClientHandler getClientConnection() {

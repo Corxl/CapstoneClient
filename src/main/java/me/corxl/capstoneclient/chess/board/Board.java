@@ -17,7 +17,7 @@ public class Board extends GridPane implements BoardInterface {
 
     private Player white, black;
     public boolean isPieceSelected;
-    private Space[][] spaces;
+    private final Space[][] spaces;
     public boolean[][] selectedSpaces;
     private final HashMap<TeamColor, Boolean> isChecked = new HashMap<>();
     private final HashMap<TeamColor, TeamColor> opposingColors = new HashMap<>();
@@ -157,5 +157,15 @@ public class Board extends GridPane implements BoardInterface {
 
     public boolean isSelected(BoardLocation loc) {
         return this.selectedSpaces[loc.getX()][loc.getY()];
+    }
+
+    public void reset() {
+        for (Space[] space : this.getSpaces()) {
+            for (Space space1 : space) {
+                space1.setPiece(null);
+            }
+        }
+        this.selectedPiece = null;
+        this.clearSelections();
     }
 }
