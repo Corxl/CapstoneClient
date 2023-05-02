@@ -46,23 +46,27 @@ public class ClientHandler implements Serializable {
     }
 
     public void closeConnection() throws IOException {
-        ioout.close();
+        this.
+                ioout.close();
         input.close();
         socket.close();
-        System.out.println("Shutting down client connection...");
     }
 
-    public boolean[][] getPossibleMoves(Piece p, boolean targetFriendly) throws IOException, ClassNotFoundException {
+    public boolean[][] getPossibleMoves(Piece p, boolean targetFriendly) {
 
         //Object[] data = new Object[]{"getPossibleMoves", p.getLocation(), targetFriendly, board.getClientPlayer()};
-        System.out.println("Gamekey = " + this.gameKey);
-        if (p.getColor() != this.getBoard().getClientPlayer().getTeamColor())
-            return new boolean[8][8];
-        ioout = new ObjectOutputStream(socket.getOutputStream());
-        Object[] data = new Object[]{"getPossibleMoves", this.clientID, this.gameKey, new int[]{p.getLocation().getX(), p.getLocation().getY()}};
-        ioout.writeObject(data);
-        input = new ObjectInputStream(socket.getInputStream());
-        boolean[][] moveSpaces = (boolean[][]) input.readObject();
+        boolean[][] moveSpaces = new boolean[8][8];
+        try {
+            if (p.getColor() != this.getBoard().getClientPlayer().getTeamColor())
+                return new boolean[8][8];
+            ioout = new ObjectOutputStream(socket.getOutputStream());
+            Object[] data = new Object[]{"getPossibleMoves", this.clientID, this.gameKey, new int[]{p.getLocation().getX(), p.getLocation().getY()}};
+            ioout.writeObject(data);
+            input = new ObjectInputStream(socket.getInputStream());
+            moveSpaces = (boolean[][]) input.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
         return moveSpaces;
     }
 
@@ -81,7 +85,8 @@ public class ClientHandler implements Serializable {
         input = new ObjectInputStream(socket.getInputStream());
 //        if (input.readObject() == null)
 //            return null;
-        return PieceType.getTypeByKey((Integer) input.readObject());
+        Object[] d = (Object[]) input.readObject();
+        return PieceType.getTypeByKey((int) d[0]);
     }
 
     public String createLobby() throws IOException, ClassNotFoundException {
@@ -115,6 +120,10 @@ public class ClientHandler implements Serializable {
         this.gameController = controller;
     }
 
+    public void sendPromoteChoice(PieceType type) throws IOException, ClassNotFoundException {
+        sendData(new Object[]{"promote", type.getKey()});
+    }
+
     private class ReceiveDataThread extends Thread {
         private Socket socketdata = null;
         private ObjectInputStream inputData = null;
@@ -135,6 +144,7 @@ public class ClientHandler implements Serializable {
                     Object[] data = (Object[]) input.readObject();
                     String dataType = (String) data[0];
                     if (dataType.equals("updateBoard")) {
+                        System.out.println("UPDATE");
                         Integer[][][] layout = (Integer[][][]) data[1];
                         BoardLayout[][] bLayout = new BoardLayout[8][8];
                         TeamColor c = TeamColor.getTypeByKey((Integer) data[2]);
@@ -155,6 +165,9 @@ public class ClientHandler implements Serializable {
                         }
                     } else if (dataType.equals("alert")) {
                         gameController.showDisconnectMessage((String) data[1]);
+                        int type = (int) data[2];
+                        if (type == 1)
+                            Space.playDeathSound(PieceType.QUEEN);
                     }
                 } catch (IOException | ClassNotFoundException e) {
                     System.out.println("Connection Terminated.");

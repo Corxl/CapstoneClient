@@ -3,6 +3,7 @@ package me.corxl.capstoneclient.chess.pieces;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import me.corxl.capstoneclient.chess.board.Board;
 import me.corxl.capstoneclient.chess.spaces.BoardLocation;
@@ -24,8 +25,6 @@ public class Piece extends VBox implements Serializable {
         this.location = piece.getLocation();
         this.pawnMoved = piece.pawnMoved;
     }
-
-
     public Piece(PieceType pieceType, TeamColor color, BoardLocation location, Board board) {
         this.color = color;
         this.location = location;
@@ -48,13 +47,24 @@ public class Piece extends VBox implements Serializable {
 //                if (this.color != board.getTurn()) {
 //                    return;
 //                }
+                //
+
+                //
+                //if (this.pieceType == PieceType.PAWN) {
+                //this.board.createPromote(this.location);
+                //}
+
+
                 if (this.board.isSelected(this.location)) {
+                    System.out.println("SELECTED");
                     board.getClient().requestMove(this.location, this.board.selectedPiece.getLocation());
                     board.clearSelections();
                     return;
                 }
                 board.clearSelections();
+                System.out.println("STARTED GET POSS MOVES");
                 boolean[][] possileMoves = board.getClient().getPossibleMoves(this, false);
+                System.out.println("ENDED GET POSS MOVES");
                 board.selectedSpaces = possileMoves;
                 Space[][] spaces = board.getSpaces();
                 for (int j = 0; j < possileMoves.length; j++) {
@@ -70,6 +80,22 @@ public class Piece extends VBox implements Serializable {
                 ioException.printStackTrace();
             }
         });
+    }
+
+    public static StackPane createPieceVisual(PieceType type, TeamColor color) {
+        String p = color == TeamColor.WHITE
+                ?
+                System.getProperty("user.dir") + "\\src\\main\\resources\\me\\corxl\\capstoneclient\\" + type.fileLocation[0]
+                :
+                System.getProperty("user.dir") + "\\src\\main\\resources\\me\\corxl\\capstoneclient\\" + type.fileLocation[1];
+        Image i = new Image(p);
+        ImageView v = new ImageView(i);
+        v.setFitWidth(50);
+        v.setFitHeight(50);
+        StackPane pane = new StackPane();
+        pane.setAlignment(Pos.CENTER);
+        pane.getChildren().add(v);
+        return pane;
     }
 
     public Board getBoard() {

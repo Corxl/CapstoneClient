@@ -27,8 +27,6 @@ public class ChessMain extends Application {
     public void start(Stage stage) throws IOException, ClassNotFoundException {
         this.lobbyStage = stage;
         loadLobbyWindow();
-
-
         //loadBoardWindow(ChessMain.stage);
     }
 
@@ -56,10 +54,12 @@ public class ChessMain extends Application {
         lobbyStage.setScene(scene);
         lobbyStage.setResizable(false);
         lobbyStage.show();
+        this.lobbyStage.setOnCloseRequest((e) -> {
+            e.consume();
+        });
     }
 
     protected void updateBoard(BoardLayout[][] layout, TeamColor c) throws IOException, ClassNotFoundException {
-        System.out.println("update");
         if (this.STATE == LobbyState.LOBBY) {
             System.out.println("State Changed");
             Platform.runLater(() -> {
@@ -94,11 +94,17 @@ public class ChessMain extends Application {
         CLIENT_CONNECTION.setGameController(((ChessController) fxmlLoader.getController()));
         ((ChessController) fxmlLoader.getController()).setBoard(b);
         ((ChessController) fxmlLoader.getController()).setMainStage(gameStage);
+        b.setController(fxmlLoader.getController());
         gameStage.setTitle("Chess " + VERSION);
         gameStage.setScene(scene);
         gameStage.initStyle(StageStyle.TRANSPARENT);
         gameStage.setResizable(false);
         gameStage.show();
+        gameStage.setOnCloseRequest((e) -> {
+            e.consume();
+        });
+        gameStage.setX(lobbyStage.getX());
+        gameStage.setY(lobbyStage.getY());
     }
 
     public Stage getStage() {

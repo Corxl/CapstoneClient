@@ -1,0 +1,23 @@
+.selection-pane {
+    -fx-background-color: linear-gradient(to top left, rgba(8, 52, 76, 1) 0%, rgba(13, 74, 107, 1) 100%);
+    -fx-background-radius: 8px;
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-pref-height: 100px;
+    -fx-pref-width: 100px;
+    -fx-max-height: 100px;
+    -fx-min-height: 100px;
+    -fx-max-width: 100px;
+    -fx-min-width: 100px;
+    -fx-cursor: HAND;
+    -fx-start-margin: 10px 10px 10px 10px;
+}
+
+.selection-pane:hover {
+    -fx-background-color: linear-gradient(to top left, rgb(15, 87, 134) 0%, rgb(46, 124, 161) 100%)
+}
+
+.selection-pane:pressed {
+    -fx-background-color: linear-gradient(to top left, rgb(15, 87, 134) 0%, rgb(46, 124, 161) 100%)
+}

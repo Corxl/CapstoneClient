@@ -63,9 +63,7 @@ public class Space extends StackPane implements SpaceInterface, Serializable {
         this.setOnMouseClicked((e) -> {
             try {
                 onClick();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
         });

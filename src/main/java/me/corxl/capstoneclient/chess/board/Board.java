@@ -2,9 +2,9 @@ package me.corxl.capstoneclient.chess.board;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
+import me.corxl.capstoneclient.ChessController;
 import me.corxl.capstoneclient.ClientHandler;
 import me.corxl.capstoneclient.chess.pieces.Piece;
-import me.corxl.capstoneclient.chess.pieces.PieceType;
 import me.corxl.capstoneclient.chess.pieces.TeamColor;
 import me.corxl.capstoneclient.chess.players.Player;
 import me.corxl.capstoneclient.chess.spaces.BoardLocation;
@@ -25,20 +25,10 @@ public class Board extends GridPane implements BoardInterface {
     public Piece selectedPiece;
     private Player clientPlayer;
     private ClientHandler client;
-    private PieceType[][] defaultPieces = new PieceType[][]{
-            {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK},
-            {PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN},
-            {null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null},
-            {null, null, null, null, null, null, null, null},
-            {PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN, PieceType.PAWN},
-            {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.KING, PieceType.QUEEN, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK}
-    };
+    private ChessController controller;
 
     public Board(BoardLayout[][] layout) {
         isPieceSelected = false;
-        //spaces = new Space[8][8];
         spaces = new Space[8][8];
         selectedSpaces = new boolean[8][8];
         turn = TeamColor.WHITE;
@@ -69,6 +59,11 @@ public class Board extends GridPane implements BoardInterface {
         opposingColors.put(TeamColor.BLACK, TeamColor.WHITE);
     }
 
+    public void setController(ChessController controller) {
+        this.controller = controller;
+    }
+
+
     public ClientHandler getClient() {
         return this.client;
     }
@@ -79,14 +74,6 @@ public class Board extends GridPane implements BoardInterface {
 
     public void setClientPlayer(Player p) {
         clientPlayer = p;
-    }
-
-    public HashMap<TeamColor, TeamColor> getOpposingColor() {
-        return opposingColors;
-    }
-
-    public HashMap<TeamColor, Boolean> getIsChecked() {
-        return isChecked;
     }
 
     public void updateBoard(BoardLayout[][] layout) {
@@ -136,15 +123,6 @@ public class Board extends GridPane implements BoardInterface {
     public void updateBoard(Space[][] spaces) {
 
     }
-
-//    public static void simulateMove(Space[][] simSpaces, Piece p, BoardLocation newLocation, BoardLocation oldLocation) {
-//        if (p == null)
-//            return;
-//        Space s = simSpaces[newLocation.getX()][newLocation.getY()];
-//        Space old = simSpaces[oldLocation.getX()][oldLocation.getY()];
-//        s.setPiece(p);
-//        old.setPiece(null);
-//    }
 
     public void clearSelections() {
         for (Space[] spArr : spaces) {

@@ -12,7 +12,7 @@
     <center>
         <VBox alignment="CENTER" spacing="15.0" styleClass="accent-container" stylesheets="@lobby.css">
             <children>
-                <StackPane>
+                <StackPane fx:id="mainWindowStackPane">
                     <VBox.margin>
                         <Insets/>
                     </VBox.margin>
@@ -25,7 +25,8 @@
                         </VBox>
                         <VBox fx:id="alertBox" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                             <children>
-                                <Label fx:id="alertText" prefHeight="83.0" prefWidth="579.0" textFill="WHITE">
+                                <Label fx:id="alertText" alignment="CENTER" prefHeight="110.0" prefWidth="579.0"
+                                       textFill="WHITE">
                                     <font>
                                         <Font name="Consolas Bold" size="28.0"/>
                                     </font>

@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import me.corxl.capstoneclient.chess.board.Board;
@@ -28,6 +29,8 @@ public class ChessController implements Initializable {
     private Label alertText;
     @FXML
     private Button quitButton;
+    @FXML
+    private StackPane mainWindowStackPane;
     private Board currentBoard;
     private Stage stage;
 
@@ -40,6 +43,10 @@ public class ChessController implements Initializable {
 
     public final void setMainStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public StackPane getMainWindowStackPane() {
+        return this.mainWindowStackPane;
     }
 
 
